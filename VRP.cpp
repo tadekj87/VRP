@@ -12,15 +12,16 @@ using namespace std;
  double permutacja[100]; // tablica pomocnicza
  vector <double> Permutacja; // szukane rozwiązanie
  vector <double> A; // dostępne miasta
- vector <double> kopiaA;
+ vector <double> AA; // kopia z drugiego while
  vector <double> N; // zbiór miast
+ vector <int> pomoc;
  void wyswietlPermutacje();
 
-void Greedy(int Rozmiar, int K)
+void Greedy(int Rozmiar, int K, int baza)
 {
     int rozmiar = Rozmiar;
 
-    kopiaA=A = N;    
+    A = N;    
     
     int k = 1, ine1=0,ine2=0; // nr ciężarówki
     double j = 0, l=99999;
@@ -28,11 +29,13 @@ void Greedy(int Rozmiar, int K)
     int x[100]; // xk
 
     Permutacja.clear();
+    int rozmiar2 = rozmiar;
 
     while (A.size())
-    {   
-        int rozmiar2 = rozmiar;
-        Permutacja.push_back(tablica[0][0]);
+    {   // jesteśmy w pierwszym wierszu
+        cout << endl << "poczatek duzego while" << endl;
+        
+        Permutacja.push_back(tablica[baza][baza]);
 
         j = 0,l=99999;
 
@@ -45,7 +48,7 @@ void Greedy(int Rozmiar, int K)
             }
         }
 
-        cout << "J "<<j << " Ine1 "<< ine1<<endl;
+        cout << endl <<"J "<<j << " Max(pozycja) "<< ine1<<endl;
 
         Permutacja.push_back(j); 
 
@@ -53,39 +56,48 @@ void Greedy(int Rozmiar, int K)
 
         A.erase(A.begin()+ine1);
 
-        wyswietlPermutacje();
+        wyswietlPermutacje(); 
 
-        A.clear();
+        AA.clear();
 
-        rozmiar2--;
+       for (int i = 0; i < rozmiar; i++)
+            AA.push_back(tablica[ine1][i]);
 
-       for (int i = 0; i < rozmiar2; i++)
-            A.push_back(tablica[ine1][i]);
+       pomoc.push_back(baza);
 
-        A.erase(A.begin());
-
-        wyswietlPermutacje();
+       for (vector<int>::iterator it = pomoc.begin(); it != pomoc.end(); it++)
+           AA.erase(AA.begin()+*it);
 
         while (limit==true)
         {
-            for (vector<double>::iterator it = A.begin(); it != A.end(); it++)
+            cout << endl << "maly while" << endl;
+            wyswietlPermutacje();
+            for (vector<double>::iterator it = AA.begin(); it != AA.end(); it++)
             {
-                if (*it < l)
+                if (*it < l && *it>0 && *it!=j)
                 {
                     l = *it;               
-                    ine2 = it - A.begin();        
+                    ine2 = it - AA.begin();    // pozycja najmniejszego elementu w kolejnym wierszu    
                 }
             }
 
             if (x[k] + 1 < rozmiar/K)
             {
+                pomoc.push_back(ine2);
+                cout << endl << "1" << endl;
                 Permutacja.push_back(l); 
-                A.erase(A.begin() + ine2); cout << endl << "Rozmiar A" << A.size() << endl;
+                cout << endl << "2" << endl;
+                AA.erase(AA.begin() + ine2); 
+                cout << endl << "3" << endl;
+                A.erase(A.begin()+ine2);
+                cout << endl << "4" << endl;
                 x[k]++;
+                l = 9999;
             }
             else
                 limit = false;
-        }            
+        }         
+        limit = true;
         k++; 
     }
 }
@@ -165,7 +177,10 @@ void symulowaneWyrzazanie()
 
      for (std::vector<double>::iterator it = A.begin(); it != A.end(); ++it)
          cout << ' ' << *it;
+     cout << endl << "Wyswietlenie permutacji: AA ";
 
+     for (std::vector<double>::iterator it = AA.begin(); it != AA.end(); ++it)
+         cout << ' ' << *it;
  }
 
  void wstawPermutacje()
@@ -228,9 +243,9 @@ int main()
     for (int i = 0; i < rozmiar; i++)
         N.push_back(tablica[0][i]);
 
-    Greedy(rozmiar,10);
+    Greedy(rozmiar,1,0);
 
-    wyswietlPermutacje();
+    //wyswietlPermutacje();
 
     system("PAUSE");
 
