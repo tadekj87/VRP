@@ -15,6 +15,8 @@ using namespace std;
  vector <double> AA; // kopia z drugiego while
  vector <double> N; // zbiór miast
  vector <int> pomoc;
+
+ int tablicaSW[100], tablicaNEW[100];
  void wyswietlPermutacje();
 
 void Greedy(int Rozmiar, int K, int baza)
@@ -30,7 +32,8 @@ void Greedy(int Rozmiar, int K, int baza)
 
     Permutacja.clear();
     int rozmiar2 = rozmiar;
-
+A.erase(A.begin() + baza);
+       pomoc.push_back(baza);
     while (A.size())
     {   // jesteśmy w pierwszym wierszu
         cout << endl << "poczatek duzego while" << endl;
@@ -38,7 +41,7 @@ void Greedy(int Rozmiar, int K, int baza)
         Permutacja.push_back(tablica[baza][baza]);
 
         j = 0,l=99999;
-
+        
         for (vector<double>::iterator it = A.begin(); it != A.end(); it++)
         {
             if (*it > j)
@@ -54,19 +57,24 @@ void Greedy(int Rozmiar, int K, int baza)
 
         x[k] = 1; // liczba zleceń obsłużonych przez pojazd k
 
+
         A.erase(A.begin()+ine1);
 
-        wyswietlPermutacje(); 
 
         AA.clear();
 
        for (int i = 0; i < rozmiar; i++)
             AA.push_back(tablica[ine1][i]);
+  wyswietlPermutacje(); 
 
-       pomoc.push_back(baza);
+       pomoc.push_back(ine1);
 
-       for (vector<int>::iterator it = pomoc.begin(); it != pomoc.end(); it++)
-           AA.erase(AA.begin()+*it);
+       cout << endl << "Pomoc baza " << pomoc[0] << " Pomoc ine1 " << pomoc[1] << endl;
+
+       for (vector<int>::iterator it = pomoc.begin(); it != pomoc.end(); it++) {
+           AA.erase(AA.begin() + *it);
+           cout << endl << "*it " << *it << endl;
+       }
 
         while (limit==true)
         {
@@ -87,7 +95,7 @@ void Greedy(int Rozmiar, int K, int baza)
                 cout << endl << "1" << endl;
                 Permutacja.push_back(l); 
                 cout << endl << "2" << endl;
-                AA.erase(AA.begin() + ine2); 
+                AA.erase(AA.begin() + ine2);
                 cout << endl << "3" << endl;
                 A.erase(A.begin()+ine2);
                 cout << endl << "4" << endl;
@@ -101,70 +109,98 @@ void Greedy(int Rozmiar, int K, int baza)
         k++; 
     }
 }
-/*
-void symulowaneWyrzazanie() 
+
+double obliczPermutacje(int rozmiar,int tablicaOblicz[])
+{
+    double suma=0;
+
+        for (int i = 0; i < rozmiar-1; i++)
+        {
+            suma+=tablica[tablicaOblicz[i]][tablicaOblicz[i+1]];
+            
+        }cout << endl << "dodawanie: " << suma << endl;
+        return suma;
+}
+
+double symulowaneWyrzazanie(int rozmiar) 
 {
     
     int T = 100;
     int T0 = T;
-    double L;
-    double deltaCmax, r;
+    double L=sqrt(rozmiar);
+    double deltaCmax, oldCmax,newCmax, r;
+    double wynik=0;
+
 
     // inicjalizacja permutacji
 
-    vector <double> nowaP;
-
-
-    Permutacja.push_back(tablica[0][0]);
-
-    for (int i = 1; i < L; i++)
+    for (int i = 0; i < rozmiar; i++)
     {
-        Permutacja.push_back(tablica[0][i]);
+        tablicaSW[i] = i;
     }
-
-    L = Permutacja.size();
-
-    Permutacja.push_back(tablica[0][0]);
 
     int i, j;
 
     while (T0 > 0)
     {
-        for (int k = 1; k < L; k++)
+        for (int k = 1; k < 2; k++)
         {
-            i = Randint(1, L);
-            j = Randint(1, L);
+            i = 1 + rand()%(rozmiar-1);
+            j = 1 + rand() % (rozmiar - 1);
 
-            swap();
+            // swap
+            int pomoc = 0;
 
-            oldCmax = obliczPermutacje();
-            newCmax = obliczPermutacje();
+
+            for (int t = 0; t < rozmiar; t++)
+                if (t != i)
+                    tablicaNEW[t] = tablicaSW[t];
+                else if (t == i)
+                    tablicaNEW[t] = tablicaSW[j];
+                else if (t == j)
+                    tablicaNEW[t] = tablicaSW[i];
+            
+
+            oldCmax = obliczPermutacje(rozmiar,tablicaSW);
+            newCmax = obliczPermutacje(rozmiar,tablicaNEW);
 
             deltaCmax = oldCmax - newCmax;
 
             if (deltaCmax <= 0)
             {
-                r = Rand01();
+                r = (double)rand()/RAND_MAX;
                 if (r >= exp(deltaCmax/T0))
                 {
-                    Permutacja = newP;
+                    for (int z = 0; z < rozmiar; z++)
+                    {
+                        tablicaNEW[z] = tablicaSW[z];
+                    }
+                    wynik = oldCmax;
                 }
             }
 
-            Permutacja = nowaP;
-
-            if (newCmax < )
+            for (int z = 0; z < rozmiar; z++)
             {
-                result = Permutacja;
-                resultRoute = newCmax;
+                tablicaSW[z] = tablicaNEW[z];
+            }
+            wynik = oldCmax;
+
+            if (deltaCmax > 0)
+            {
+                for (int z = 0; z < rozmiar; z++)
+                {
+                    tablicaNEW[z] = tablicaSW[z];
+                }
+                wynik = oldCmax;
             }
         }
         T0--;
     }
+    return wynik;
 
 }
 
-*/
+
 
  void wyswietlPermutacje() 
  {
@@ -240,12 +276,17 @@ int main()
 
     //cout << endl << "Suma wszystkich tras wynosi: " << sumaP << jednostka << endl;
 
-    for (int i = 0; i < rozmiar; i++)
-        N.push_back(tablica[0][i]);
+    //for (int i = 0; i < rozmiar; i++)
+      //  N.push_back(tablica[0][i]);
 
-    Greedy(rozmiar,1,0);
+    //Greedy(rozmiar,1,0);
 
     //wyswietlPermutacje();
+
+    double wynikWyrzazania = 0;
+    wynikWyrzazania = symulowaneWyrzazanie(rozmiar);
+
+    cout << endl << "Wynik wyrzazania to: " << wynikWyrzazania << " "<< jednostka<< endl;
 
     system("PAUSE");
 
